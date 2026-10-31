@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Analytics Dashboard</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f3f6fb;
+    color: #1e293b;
+}
+
+header {
+    background: #123b72;
+    color: white;
+    padding: 25px 5%;
+}
+
+header h1 {
+    font-size: 25px;
+}
+
+header p {
+    margin-top: 8px;
+    color: #dbeafe;
+}
+
+.container {
+    padding: 25px 5%;
+}
+
+.section-title {
+    margin-bottom: 18px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: white;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px #0000000c;
+}
+
+.card p {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.card h2 {
+    color: #123b72;
+    margin-top: 12px;
+    font-size: 28px;
+}
+
+.panel {
+    background: white;
+    padding: 22px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 12px #0000000c;
+}
+
+input, button {
+    padding: 12px;
+    border-radius: 7px;
+    border: 1px solid #cbd5e1;
+    margin-top: 12px;
+}
+
+button {
+    background: #123b72;
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+button:hover {
+    background: #2563eb;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 18px;
+    min-width: 550px;
+}
+
+th, td {
+    padding: 13px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+    background: #eff6ff;
+    color: #123b72;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.good {
+    color: green;
+    font-weight: bold;
+}
+
+.average {
+    color: orange;
+    font-weight: bold;
+}
+
+.poor {
+    color: red;
+    font-weight: bold;
+}
+
+.chart {
+    margin-top: 20px;
+}
+
+.bar {
+    background: #2563eb;
+    height: 13px;
+    border-radius: 10px;
+    margin: 8px 0 15px;
+}
+
+.insight {
+    background: #eff6ff;
+    padding: 18px;
+    border-left: 5px solid #2563eb;
+    border-radius: 7px;
+    line-height: 1.7;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    background: #123b72;
+    color: white;
+    margin-top: 30px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Student Analytics Dashboard</h1>
+    <p>Using Data Science to Understand Student Performance</p>
+    <p>Developed by Jabir Sani | 3MTT Data Science Project</p>
+</header>
+
+<div class="container">
+
+    <h2 class="section-title">Dashboard Overview</h2>
+
+    <div class="cards">
+        <div class="card">
+            <p>Total Students</p>
+            <h2 id="total">5</h2>
+        </div>
+
+        <div class="card">
+            <p>Average Score</p>
+            <h2 id="average">72%</h2>
+        </div>
+
+        <div class="card">
+            <p>Pass Rate</p>
+            <h2 id="pass">80%</h2>
+        </div>
+
+        <div class="card">
+            <p>Top Score</p>
+            <h2 id="top">95%</h2>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Upload Student Dataset</h2>
+        <p>Upload a CSV file containing student names, scores and attendance.</p>
+
+        <input type="file" id="fileInput" accept=".csv">
+
+        <button onclick="uploadData()">Analyze Dataset</button>
+
+        <p id="message"></p>
+    </div>
+
+    <div class="panel">
+        <h2>Student Performance Analysis</h2>
+        <div class="chart" id="chart"></div>
+    </div>
+
+    <div class="panel">
+        <h2>Student Records</h2>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Score</th>
+                        <th>Attendance</th>
+                        <th>Performance</th>
+                    </tr>
+                </thead>
+
+                <tbody id="studentTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Data Science Insights</h2>
+        <div class="insight" id="insights">
+            Loading student performance insights...
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <p>Student Analytics Dashboard © 2026</p>
+    <p>Built by Jabir Sani | 3MTT Data Science</p>
+</footer>
+
+<script>
+
+let students = [
+    {name:"Ahmed", score:85, attendance:90},
+    {name:"Fatima", score:95, attendance:98},
+    {name:"Musa", score:65, attendance:75},
+    {name:"Aisha", score:45, attendance:60},
+    {name:"Ibrahim", score:70, attendance:85}
+];
+
+function analyze() {
+
+    let total = students.length;
+
+    if (total === 0) return;
+
+    let sum = students.reduce((a,b) => a + b.score, 0);
+
+    let average = sum / total;
+
+    let passed = students.filter(s => s.score >= 50).length;
+
+    let top = Math.max(...students.map(s => s.score));
+
+    document.getElementById("total").textContent = total;
+
+    document.getElementById("average").textContent =
+        average.toFixed(1) + "%";
+
+    document.getElementById("pass").textContent =
+        ((passed / total) * 100).toFixed(1) + "%";
+
+    document.getElementById("top").textContent = top + "%";
+
+    displayTable();
+    displayChart();
+    generateInsights(average, passed);
+}
+
+function displayTable() {
+
+    let table = document.getElementById("studentTable");
+
+    table.innerHTML = "";
+
+    students.forEach(student => {
+
+        let performance =
+            student.score >= 70 ? "Good" :
+            student.score >= 50 ? "Average" : "Needs Improvement";
+
+        let css =
+            student.score >= 70 ? "good" :
+            student.score >= 50 ? "average" : "poor";
+
+        table.innerHTML += `
+        <tr>
+            <td>${student.name}</td>
+            <td>${student.score}%</td>
+            <td>${student.attendance}%</td>
+            <td class="${css}">${performance}</td>
+        </tr>`;
+    });
+}
+
+function displayChart() {
+
+    let chart = document.getElementById("chart");
+
+    chart.innerHTML = "";
+
+    students.forEach(student => {
+
+        chart.innerHTML += `
+        <p><strong>${student.name}</strong> - ${student.score}%</p>
+        <div class="bar"
+        style="width:${student.score}%"></div>`;
+    });
+}
+
+function generateInsights(average, passed) {
+
+    let message = "";
+
+    if (average >= 70) {
+        message = "Overall student performance is good.";
+    } else if (average >= 50) {
+        message = "Overall student performance is average.";
+    } else {
+        message = "Overall student performance needs improvement.";
+    }
+
+    let best = students.reduce((a,b) =>
+        a.score > b.score ? a : b
+    );
+
+    document.getElementById("insights").innerHTML = `
+    ${message}<br>
+    Students who passed: ${passed} out of ${students.length}.<br>
+    Highest-performing student: ${best.name}.<br>
+    Average score: ${average.toFixed(1)}%.<br>
+    These insights are generated from the uploaded student data.
+    `;
+}
+
+function uploadData() {
+
+    let file = document.getElementById("fileInput").files[0];
+
+    let message = document.getElementById("message");
+
+    if (!file) {
+        message.textContent = "Please select a CSV file first.";
+        return;
+    }
+
+    let reader = new FileReader();
+
+    reader.onload = function(event) {
+
+        let rows = event.target.result.trim().split(/\r?\n/);
+
+        let data = rows.slice(1).map(row => {
+
+            let columns = row.split(",");
+
+            return {
+                name: columns[0]?.trim(),
+                score: Number(columns[1]),
+                attendance: Number(columns[2])
+            };
+
+        }).filter(s =>
+            s.name &&
+            Number.isFinite(s.score) &&
+            s.score >= 0 &&
+            s.score <= 100 &&
+            Number.isFinite(s.attendance) &&
+            s.attendance >= 0 &&
+            s.attendance <= 100
+        );
+
+        if (data.length === 0) {
+            message.textContent =
+                "No valid records found. Check your CSV format.";
+            return;
+        }
+
+        students = data;
+
+        analyze();
+
+        message.textContent =
+            "Dataset successfully uploaded and analyzed!";
+    };
+
+    reader.readAsText(file);
+}
+
+analyze();
+
+</script>
+
+</body>
+</html>
+
